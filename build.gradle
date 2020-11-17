@@ -3,7 +3,7 @@ plugins {
 	id "java-library"
 	id "checkstyle"
 	id "maven-publish"
-	id "net.minecrell.licenser" version "0.4.1"
+	id "com.diffplug.spotless" version "5.8.2"
 }
 
 sourceCompatibility = 1.8
@@ -32,11 +32,6 @@ dependencies {
 	api "org.ow2.asm:asm-commons:$asmVersion" // For Remapper
 }
 
-license {
-	header project.file("HEADER")
-	include "**/*.java"
-}
-
 checkstyle {
 	configFile = project.file("checkstyle.xml")
 	toolVersion = "8.31"
@@ -50,6 +45,28 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
 	archiveClassifier = 'javadoc'
 	from javadoc.destinationDir
+}
+
+spotless {
+	java {
+		// Only update license headers when changes have occurred
+		ratchetFrom "master"
+
+		licenseHeaderFile(rootProject.file("HEADER"))
+				.yearSeparator(", ")
+	}
+
+	// Spotless tries to be smart by ignoring package-info files, however license are present there
+	format "package-info", {
+		target "**/package-info.java"
+
+		// Only update license headers when changes have occurred
+		ratchetFrom "master"
+
+		// Regex is `/**` or `package`
+		it.licenseHeaderFile(rootProject.file("HEADER"), "/\\*\\*|package")
+				.yearSeparator(", ")
+	}
 }
 
 publishing {
