@@ -56,7 +56,8 @@ spotless {
 				.yearSeparator(", ")
 	}
 
-	// Spotless tries to be smart by ignoring package-info files, however license are present there
+	// Spotless skips `package-info.java` and `module-info.java` files.
+	// For now we just cover package-info since we are not project jigsaw yet, so we do some witchcraft to allow it
 	format "package-info", {
 		target "**/package-info.java"
 
